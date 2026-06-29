@@ -183,9 +183,11 @@ with col1:
     if st.button("Reset to Default Database"):
         import agent
         agent.SCHEMA = agent.DEFAULT_SCHEMA
+        st.session_state.uploaded = False
         st.success("Reset to fraud transaction database")
         
-    if uploaded_file:
+    if uploaded_file and st.session_state.get("uploaded", True):
+        st.session_state.uploaded = True
         df = pd.read_csv(uploaded_file)
         conn = sqlite3.connect("transactions.db")
         table_name = uploaded_file.name.replace(".csv", "").replace(" ", "_").lower()

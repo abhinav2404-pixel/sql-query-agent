@@ -12,11 +12,26 @@ SCHEMA = """
 Table: transactions
 Columns:
 - transaction_id (INTEGER): unique transaction identifier
-- customer_id (INTEGER): unique customer identifier
+- customer_id (INTEGER): foreign key linking to customers table
 - amount (FLOAT): transaction amount in dollars
-- merchant (TEXT): merchant name
+- merchant (TEXT): merchant name, foreign key linking to merchants table
 - transaction_date (DATE): date of transaction
 - is_fraud (INTEGER): 1 if fraudulent, 0 if legitimate
+
+Table: customers
+Columns:
+- customer_id (INTEGER): unique customer identifier
+- name (TEXT): full name of customer
+- age (INTEGER): age of customer
+- city (TEXT): city where customer lives
+- account_age_days (INTEGER): how long the account has been open in days
+- credit_score (INTEGER): customer credit score
+
+Table: merchants
+Columns:
+- merchant_name (TEXT): name of the merchant
+- merchant_category (TEXT): category of merchant e.g. Retail, Luxury, Finance
+- risk_level (TEXT): merchant risk level - Low, Medium, or High
 """
 
 def generate_sql(user_question):

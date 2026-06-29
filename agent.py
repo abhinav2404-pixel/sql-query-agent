@@ -8,7 +8,7 @@ load_dotenv()
 
 client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
-SCHEMA = """
+DEFAULT_SCHEMA = """
 Table: transactions
 Columns:
 - transaction_id (INTEGER): unique transaction identifier
@@ -34,7 +34,11 @@ Columns:
 - risk_level (TEXT): merchant risk level - Low, Medium, or High
 """
 
+SCHEMA = DEFAULT_SCHEMA
+
 def generate_sql(user_question):
+    import agent
+    current_schema = agent.SCHEMA
     response = client.messages.create(
         model="claude-sonnet-4-6",
         max_tokens=1000,
@@ -43,7 +47,7 @@ def generate_sql(user_question):
                 "role": "user",
                 "content": f"""You are a SQL expert. Given this database schema:
 
-{SCHEMA}
+{current_schema}
 
 Convert this question to SQL and explain it:
 Question: {user_question}
@@ -69,9 +73,33 @@ def run_query(sql):
 def parse_response(response_text):
     sql = ""
     explanation = ""
-    for line in response_text.split("\n"):
+    lines = response_text.split("\n")
+    sql_lines = []
+    explanation_lines = []
+    in_sql = False
+    in_explanation = False
+
+    for line in lines:
         if line.startswith("SQL:"):
-            sql = line.replace("SQL:", "").strip()
+            in_sql = True
+            in_explanation = False
+            first_part = line.replace("SQL:", "").strip()
+            if first_part:
+                sql_lines.append(first_part)
         elif line.startswith("EXPLANATION:"):
-            explanation = line.replace("EXPLANATION:", "").strip()
+            in_sql = False
+            in_explanation = True
+            first_part = line.replace("EXPLANATION:", "").strip()
+            if first_part:
+                explanation_lines.append(first_part)
+        elif in_sql:
+            if line.strip():
+                sql_lines.append(line.strip())
+        elif in_explanation:
+            if line.strip():
+                explanation_lines.append(line.strip())
+
+    sql = " ".join(sql_lines)
+    sql = sql.replace("`", "").strip()
+    explanation = " ".join(explanation_lines)
     return sql, explanation

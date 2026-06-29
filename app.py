@@ -180,7 +180,11 @@ col1, col2 = st.columns([1, 2])
 with col1:
     st.markdown('<p class="section-header">Upload Your Data</p>', unsafe_allow_html=True)
     uploaded_file = st.file_uploader("Upload a CSV file", type=["csv"], label_visibility="collapsed")
-
+    if st.button("Reset to Default Database"):
+        import agent
+        agent.SCHEMA = agent.DEFAULT_SCHEMA
+        st.success("Reset to fraud transaction database")
+        
     if uploaded_file:
         df = pd.read_csv(uploaded_file)
         conn = sqlite3.connect("transactions.db")
@@ -245,7 +249,11 @@ with col2:
 
                 st.markdown('<p class="section-header">Results</p>', unsafe_allow_html=True)
                 results = run_query(sql)
-                st.dataframe(results, use_container_width=True)
+                if isinstance(results, pd.DataFrame):
+                    st.dataframe(results, use_container_width=True)
+                else:
+                    st.error(f"Query failed: {results}")
+                    st.info("Try rephrasing your question and make sure it matches the available data.")
 
                 if isinstance(results, pd.DataFrame) and not results.empty:
                     numeric_cols = results.select_dtypes(include="number").columns.tolist()

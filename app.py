@@ -192,6 +192,7 @@ with col1:
         df.to_sql(table_name, conn, if_exists="replace", index=False)
         conn.close()
         st.success(f"Loaded: {table_name} ({len(df)} rows)")
+        st.warning("⚠️ Now asking questions about your uploaded file. Click 'Reset to Default Database' to switch back to the fraud data.")
         st.dataframe(df.head(3), use_container_width=True)
         import agent
         schema = f"Table: {table_name}\nColumns:\n"

@@ -3,7 +3,7 @@
 An AI-powered agent that converts plain English questions into SQL queries and returns results instantly.
 
 ## Architecture
-![SQL Query Agent Architecture](images/sql_agent_architecture.png)
+![SQL Query Agent Architecture](images/sql_agent_readme_diagram.png)
 
 ## What it does
 - Takes a plain English question as input

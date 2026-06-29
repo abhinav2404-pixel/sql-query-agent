@@ -184,7 +184,7 @@ with col1:
         import agent
         agent.SCHEMA = agent.DEFAULT_SCHEMA
         st.session_state.uploaded = False
-        st.success("Reset to fraud transaction database")
+         st.success("Schema reset. Please also click the X on the uploaded file above to fully switch back.")
         
     if uploaded_file and st.session_state.get("uploaded", True):
         st.session_state.uploaded = True

@@ -274,7 +274,7 @@ with col2:
                             y=numeric_cols[0],
                             title=f"{numeric_cols[0]} by {text_cols[0]}",
                             color=numeric_cols[0],
-                            color_continuous_scale="purples",
+                            color_continuous_scale="reds",
                             template="plotly_dark"
                         )
                         fig.update_layout(

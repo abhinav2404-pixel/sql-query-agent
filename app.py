@@ -5,131 +5,54 @@ import plotly.express as px
 import os
 from agent import generate_sql, run_query, parse_response
 
-# Page config
 st.set_page_config(
     page_title="SQL Query Agent",
     page_icon="🤖",
     layout="wide"
 )
 
-# Custom CSS
 st.markdown("""
     <style>
-    /* Main background */
-    .stApp {
-        background-color: #0f1117;
-    }
-    
-    /* Header */
+    .stApp { background-color: #0f1117; }
     .header {
         background: linear-gradient(135deg, #1a1f2e 0%, #16213e 100%);
-        padding: 2rem;
-        border-radius: 12px;
-        margin-bottom: 2rem;
-        border: 1px solid #2d3561;
+        padding: 2rem; border-radius: 12px;
+        margin-bottom: 2rem; border: 1px solid #2d3561;
     }
-    .header h1 {
-        color: #ffffff;
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin: 0;
-    }
-    .header p {
-        color: #a0aec0;
-        font-size: 1rem;
-        margin: 0.5rem 0 0 0;
-    }
-    .header a {
-        color: #6c63ff;
-        text-decoration: none;
-        font-weight: 500;
-    }
-    .header a:hover {
-        text-decoration: underline;
-    }
-    
-    /* Stats bar */
-    .stats-bar {
-        background: #1a1f2e;
-        padding: 1rem 1.5rem;
-        border-radius: 10px;
-        border: 1px solid #2d3561;
-        margin-bottom: 1.5rem;
-        display: flex;
-        gap: 2rem;
-    }
-    
-    /* SQL box */
-    .sql-box {
-        background: #1a1f2e;
-        border: 1px solid #2d3561;
-        border-radius: 10px;
-        padding: 1rem;
-    }
-    
-    /* Input styling */
+    .header h1 { color: #ffffff; font-size: 2.5rem; font-weight: 700; margin: 0; }
+    .header p { color: #a0aec0; font-size: 1rem; margin: 0.5rem 0 0 0; }
+    .header a { color: #6c63ff; text-decoration: none; font-weight: 500; }
+    .header a:hover { text-decoration: underline; }
     .stTextInput input {
-        background-color: #1a1f2e !important;
-        border: 1px solid #2d3561 !important;
-        color: #ffffff !important;
-        border-radius: 8px !important;
-        font-size: 1rem !important;
-        padding: 0.75rem !important;
+        background-color: #1a1f2e !important; border: 1px solid #2d3561 !important;
+        color: #ffffff !important; border-radius: 8px !important;
+        font-size: 1rem !important; padding: 0.75rem !important;
     }
-    
-    /* Button styling */
     .stButton button {
         background: linear-gradient(135deg, #6c63ff 0%, #5a52d5 100%) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 8px !important;
-        padding: 0.75rem 2rem !important;
-        font-size: 1rem !important;
-        font-weight: 600 !important;
-        width: 100% !important;
+        color: white !important; border: none !important;
+        border-radius: 8px !important; padding: 0.75rem 2rem !important;
+        font-size: 1rem !important; font-weight: 600 !important; width: 100% !important;
     }
-    .stButton button:hover {
-        background: linear-gradient(135deg, #5a52d5 0%, #4840c0 100%) !important;
-    }
-
-    /* Section headers */
+    .stButton button:hover { background: linear-gradient(135deg, #5a52d5 0%, #4840c0 100%) !important; }
     .section-header {
-        color: #6c63ff;
-        font-size: 0.85rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 0.5rem;
+        color: #6c63ff; font-size: 0.85rem; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;
     }
-
-    /* Explanation box */
     .explanation-box {
-        background: #1a1f2e;
-        border-left: 3px solid #6c63ff;
-        border-radius: 0 8px 8px 0;
-        padding: 1rem 1.5rem;
-        color: #a0aec0;
-        font-size: 0.95rem;
-        line-height: 1.6;
+        background: #1a1f2e; border-left: 3px solid #6c63ff;
+        border-radius: 0 8px 8px 0; padding: 1rem 1.5rem;
+        color: #a0aec0; font-size: 0.95rem; line-height: 1.6;
     }
-
-    /* Footer */
     .footer {
-        text-align: center;
-        color: #4a5568;
-        font-size: 0.8rem;
-        margin-top: 3rem;
-        padding-top: 1rem;
-        border-top: 1px solid #2d3561;
+        text-align: center; color: #4a5568; font-size: 0.8rem;
+        margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #2d3561;
     }
-
-    /* Hide streamlit branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
 
-# Auto create database
 def initialize_database():
     if not os.path.exists("transactions.db"):
         conn = sqlite3.connect("transactions.db")
@@ -161,7 +84,6 @@ def initialize_database():
 
 initialize_database()
 
-# Header
 st.markdown("""
     <div class="header">
         <h1>🤖 SQL Query Agent</h1>
@@ -174,19 +96,20 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# Layout
 col1, col2 = st.columns([1, 2])
 
 with col1:
     st.markdown('<p class="section-header">Upload Your Data</p>', unsafe_allow_html=True)
     uploaded_file = st.file_uploader("Upload a CSV file", type=["csv"], label_visibility="collapsed")
+
     if st.button("Reset to Default Database"):
         import agent
         agent.SCHEMA = agent.DEFAULT_SCHEMA
         st.session_state.reset_clicked = True
         st.session_state.last_file = None
+        st.session_state.pop("results", None)
         st.success("Schema reset. Please also click the X on the uploaded file above to fully switch back.")
-        
+
     if uploaded_file:
         file_key = uploaded_file.name + str(uploaded_file.size)
         df = pd.read_csv(uploaded_file)
@@ -211,14 +134,15 @@ with col1:
         <div style="background:#1a1f2e; border:1px solid #2d3561; border-radius:8px; padding:1rem; margin-bottom:1rem;">
             <p style="color:#6c63ff; font-size:0.85rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin:0 0 0.5rem 0;">About This App</p>
             <p style="color:#a0aec0; font-size:0.85rem; line-height:1.6; margin:0;">
-                The default database contains <strong style="color:#ffffff;">fraud transaction data</strong> 
+                The default database contains <strong style="color:#ffffff;">fraud transaction data</strong>
                 with customers and merchant tables. You can ask questions about it using the sample questions below.
                 <br><br>
-                Want to explore your own data? <strong style="color:#6c63ff;">Upload any CSV file</strong> 
+                Want to explore your own data? <strong style="color:#6c63ff;">Upload any CSV file</strong>
                 above and ask questions about it in plain English.
             </p>
         </div>
     """, unsafe_allow_html=True)
+
     st.markdown('<p class="section-header">Sample Questions</p>', unsafe_allow_html=True)
     sample_questions = [
         "Show me all fraudulent transactions",
@@ -247,27 +171,82 @@ with col2:
             with st.spinner("Thinking..."):
                 response = generate_sql(user_question)
                 sql, explanation = parse_response(response)
+                st.session_state.sql = sql
+                st.session_state.explanation = explanation
+                st.session_state.results = run_query(sql)
+        else:
+            st.warning("Please enter a question")
 
-                st.markdown('<p class="section-header">Generated SQL</p>', unsafe_allow_html=True)
-                st.code(sql, language="sql")
+    if "results" in st.session_state:
+        sql = st.session_state.sql
+        explanation = st.session_state.explanation
+        results = st.session_state.results
 
-                st.markdown('<p class="section-header">What This Query Does</p>', unsafe_allow_html=True)
-                st.markdown(f'<div class="explanation-box">{explanation}</div>', unsafe_allow_html=True)
+        st.markdown('<p class="section-header">Generated SQL</p>', unsafe_allow_html=True)
+        st.code(sql, language="sql")
 
-                st.markdown('<p class="section-header">Results</p>', unsafe_allow_html=True)
-                results = run_query(sql)
-                if isinstance(results, pd.DataFrame):
-                    st.dataframe(results, use_container_width=True)
-                else:
-                    st.error(f"Query failed: {results}")
-                    st.info("Try rephrasing your question and make sure it matches the available data.")
+        st.markdown('<p class="section-header">What This Query Does</p>', unsafe_allow_html=True)
+        st.markdown(f'<div class="explanation-box">{explanation}</div>', unsafe_allow_html=True)
 
-                if isinstance(results, pd.DataFrame) and not results.empty:
-                    numeric_cols = results.select_dtypes(include="number").columns.tolist()
-                    text_cols = results.select_dtypes(include="object").columns.tolist()
+        st.markdown('<p class="section-header">Results</p>', unsafe_allow_html=True)
+        if isinstance(results, pd.DataFrame):
+            st.dataframe(results, use_container_width=True)
+        else:
+            st.error(f"Query failed: {results}")
+            st.info("Try rephrasing your question and make sure it matches the available data.")
 
-                    if numeric_cols and text_cols:
-                        st.markdown('<p class="section-header">Chart</p>', unsafe_allow_html=True)
+        if isinstance(results, pd.DataFrame) and not results.empty:
+            numeric_cols = results.select_dtypes(include="number").columns.tolist()
+            text_cols = results.select_dtypes(include="object").columns.tolist()
+
+            if numeric_cols and text_cols:
+                st.markdown('<p class="section-header">Chart</p>', unsafe_allow_html=True)
+
+                chart_type = st.selectbox(
+                    "Select chart type",
+                    ["Bar", "Line", "Pie", "Scatter"],
+                    key="chart_type"
+                )
+
+                if chart_type == "Bar":
+                    fig = px.bar(
+                        results,
+                        x=text_cols[0],
+                        y=numeric_cols[0],
+                        title=f"{numeric_cols[0]} by {text_cols[0]}",
+                        color=numeric_cols[0],
+                        color_continuous_scale="reds",
+                        template="plotly_dark"
+                    )
+                elif chart_type == "Line":
+                    fig = px.line(
+                        results,
+                        x=text_cols[0],
+                        y=numeric_cols[0],
+                        title=f"{numeric_cols[0]} over {text_cols[0]}",
+                        template="plotly_dark",
+                        markers=True
+                    )
+                elif chart_type == "Pie":
+                    fig = px.pie(
+                        results,
+                        names=text_cols[0],
+                        values=numeric_cols[0],
+                        title=f"{numeric_cols[0]} by {text_cols[0]}",
+                        template="plotly_dark",
+                        color_discrete_sequence=px.colors.sequential.Reds
+                    )
+                elif chart_type == "Scatter":
+                    if len(numeric_cols) >= 2:
+                        fig = px.scatter(
+                            results,
+                            x=numeric_cols[0],
+                            y=numeric_cols[1],
+                            text=text_cols[0] if text_cols else None,
+                            title=f"{numeric_cols[0]} vs {numeric_cols[1]}",
+                            template="plotly_dark"
+                        )
+                    else:
                         fig = px.bar(
                             results,
                             x=text_cols[0],
@@ -277,19 +256,17 @@ with col2:
                             color_continuous_scale="reds",
                             template="plotly_dark"
                         )
-                        fig.update_layout(
-                            paper_bgcolor="#1a1f2e",
-                            plot_bgcolor="#1a1f2e",
-                            font_color="#a0aec0"
-                        )
-                        st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.warning("Please enter a question")
 
-# Footer
+                fig.update_layout(
+                    paper_bgcolor="#1a1f2e",
+                    plot_bgcolor="#1a1f2e",
+                    font_color="#a0aec0"
+                )
+                st.plotly_chart(fig, use_container_width=True)
+
 st.markdown("""
     <div class="footer">
-        Built with Python, Claude AI, Streamlit & Plotly &nbsp;|&nbsp; 
+        Built with Python, Claude AI, Streamlit & Plotly &nbsp;|&nbsp;
         Abhinav Dubey &nbsp;|&nbsp; 2026
     </div>
 """, unsafe_allow_html=True)

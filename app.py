@@ -183,24 +183,28 @@ with col1:
     if st.button("Reset to Default Database"):
         import agent
         agent.SCHEMA = agent.DEFAULT_SCHEMA
-        st.session_state.uploaded = False
+        st.session_state.reset_clicked = True
+        st.session_state.last_file = None
         st.success("Schema reset. Please also click the X on the uploaded file above to fully switch back.")
         
-    if uploaded_file and st.session_state.get("uploaded", True):
-        st.session_state.uploaded = True
+    if uploaded_file:
+        file_key = uploaded_file.name + str(uploaded_file.size)
         df = pd.read_csv(uploaded_file)
-        conn = sqlite3.connect("transactions.db")
         table_name = uploaded_file.name.replace(".csv", "").replace(" ", "_").lower()
-        df.to_sql(table_name, conn, if_exists="replace", index=False)
-        conn.close()
+        if st.session_state.get("last_file") != file_key or st.session_state.get("reset_clicked"):
+            conn = sqlite3.connect("transactions.db")
+            df.to_sql(table_name, conn, if_exists="replace", index=False)
+            conn.close()
+            import agent
+            schema = f"Table: {table_name}\nColumns:\n"
+            for col, dtype in zip(df.columns, df.dtypes):
+                schema += f"- {col} ({dtype})\n"
+            agent.SCHEMA = schema
+            st.session_state.last_file = file_key
+            st.session_state.reset_clicked = False
         st.success(f"Loaded: {table_name} ({len(df)} rows)")
         st.warning("⚠️ Now asking questions about your uploaded file. Click 'Reset to Default Database' to switch back to the fraud data.")
         st.dataframe(df.head(3), use_container_width=True)
-        import agent
-        schema = f"Table: {table_name}\nColumns:\n"
-        for col, dtype in zip(df.columns, df.dtypes):
-            schema += f"- {col} ({dtype})\n"
-        agent.SCHEMA = schema
 
     st.markdown("---")
     st.markdown("""
